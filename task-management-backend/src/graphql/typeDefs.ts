@@ -25,6 +25,8 @@ const typeDefs = gql`
     register(name: String!, email: String!, password: String!, role: String!): User
     login(email: String!, password: String!): String
     createTask(title: String!, description: String!, assignedTo: ID): Task
+    editTask(taskId: ID!, title: String, description: String): Task
+    deleteTask(taskId: ID!): Task
   }
 
   type Subscription {

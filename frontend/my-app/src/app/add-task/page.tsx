@@ -26,7 +26,7 @@ function AddTask() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createTask({ variables: { title, description, assignedTo } });
+      await createTask({ variables: { title, description } });
       router.push("/dashboard");
     } catch (err) {
       console.error("Task creation failed", err);
@@ -51,7 +51,7 @@ function AddTask() {
             placeholder="Task Description"
             className="w-full p-2 border rounded mb-2"
           ></textarea>
-          <select
+          {/* <select
             value={assignedTo}
             onChange={(e) => setAssignedTo(e.target.value)}
             className="w-full p-2 border rounded mb-2"
@@ -66,7 +66,7 @@ function AddTask() {
                 </option>
               ))
             )}
-          </select>
+          </select> */}
           <button
             type="submit"
             className="w-full bg-green-600 text-white p-2 rounded"
@@ -80,4 +80,4 @@ function AddTask() {
   );
 }
 
-export default withAdmin(AddTask);
+export default AddTask;

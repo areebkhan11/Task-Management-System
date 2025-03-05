@@ -78,16 +78,59 @@ const resolvers = {
       context: any
     ): Promise<ITask> => {
       const user = authenticate(context.token);
-      if (user.role !== "admin")
-        throw new AuthenticationError("Only admins can add tasks");
-
-      const task = new Task({ title, description, assignedTo });
+      if (!user) throw new AuthenticationError("Authentication required");
+      const task = new Task({ title, description, assignedTo: user.userId});
       await task.save();
-
+    
       pubsub.publish("TASK_UPDATED", { taskUpdated: task });
       return task;
     },
+
+
+
+    editTask: async (
+      _: unknown,
+      { taskId, title, description }: { taskId: string; title?: string; description?: string },
+      context: any
+    ): Promise<ITask> => {
+      const user = authenticate(context.token);
+      if (!user) throw new AuthenticationError("Authentication required");
+
+      const task = await Task.findById(taskId);
+      if (!task) throw new Error("Task not found");
+      if (task.assignedTo.toString() !== user.userId) throw new AuthenticationError("Unauthorized");
+
+      // Update only provided fields
+      if (title !== undefined) task.title = title;
+      if (description !== undefined) task.description = description;
+
+      await task.save();
+
+      pubsub.publish("TASK_UPDATED", { taskUpdated: task });
+
+      return task;
+    },
+    deleteTask: async (
+      _: unknown,
+      { taskId }: { taskId: string },
+      context: any
+    ): Promise<ITask> => {
+      const user = authenticate(context.token);
+      if (!user) throw new AuthenticationError("Authentication required");
+    
+      const task = await Task.findById(taskId);
+      if (!task) throw new Error("Task not found");
+    
+      await Task.findByIdAndDelete(taskId);
+    
+      pubsub.publish("TASK_UPDATED", { taskUpdated: task });
+    
+      return task; // Ensure a valid Task object is returned
+    },
   },
+  
+  
+  
 
   Subscription: {
     taskUpdated: {

@@ -21,24 +21,30 @@ export const LOGIN_USER = gql`
 `;
 
 export const CREATE_TASK = gql`
-  mutation CreateTask(
-    $title: String!
-    $description: String!
-    $assignedTo: ID!
-  ) {
-    createTask(
-      title: $title
-      description: $description
-      assignedTo: $assignedTo
-    ) {
+  mutation CreateTask($title: String!, $description: String!) {
+    createTask(title: $title, description: $description) {
       id
       title
       description
-      assignedTo {
-        id
-        name
-        email
-      }
+    }
+  }
+`;
+
+export const EDIT_TASK = gql`
+  mutation EditTask($taskId: ID!, $title: String, $description: String) {
+    editTask(taskId: $taskId, title: $title, description: $description) {
+      id
+      title
+      description
+    }
+  }
+`;
+
+export const DELETE_TASK = gql`
+  mutation DeleteTask($taskId: ID!) {
+    deleteTask(taskId: $taskId) {
+      id
+      title
     }
   }
 `;
