@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { LOGIN_USER } from "../graphql/mutations";
 import { useRouter } from "next/navigation";
@@ -48,6 +48,14 @@ export default function Login() {
             Login
           </button>
           {error && <p className="text-red-500 mt-2">{error.message}</p>}
+
+          <p
+            className="mt-2 cursor-pointer"
+            onClick={() => router.push("/register")}
+          >
+            {" "}
+            Register?
+          </p>
         </form>
       </div>
     </div>

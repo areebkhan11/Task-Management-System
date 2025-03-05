@@ -1,21 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation } from "@apollo/client";
 import { CREATE_TASK } from "../graphql/mutations";
 import { useRouter } from "next/navigation";
 import withAdmin from "../hoc/withAdmin";
+import { useSelector } from "react-redux";
+import { fetchUsers } from "../../redux/slices/usersSlice";
+import { RootState } from "../../redux/store";
+import { useAppDispatch } from "../../redux/hooks";
 
 function AddTask() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const router = useRouter();
+  const dispatch = useAppDispatch();
   const [createTask, { error }] = useMutation(CREATE_TASK);
+  const [assignedTo, setAssignedTo] = useState("");
+  // Fetch users from Redux state
+  const { users, status } = useSelector((state: RootState) => state.users);
+  useEffect(() => {
+    dispatch(fetchUsers());
+  }, [dispatch]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await createTask({ variables: { title, description } });
+      await createTask({ variables: { title, description, assignedTo } });
       router.push("/dashboard");
     } catch (err) {
       console.error("Task creation failed", err);
@@ -40,6 +51,22 @@ function AddTask() {
             placeholder="Task Description"
             className="w-full p-2 border rounded mb-2"
           ></textarea>
+          <select
+            value={assignedTo}
+            onChange={(e) => setAssignedTo(e.target.value)}
+            className="w-full p-2 border rounded mb-2"
+          >
+            <option value="">Select User</option>
+            {status === "loading" ? (
+              <option>Loading users...</option>
+            ) : (
+              users?.map((user) => (
+                <option key={user?.id.toString()} value={user?.id.toString()}>
+                  {user?.name} ({user?.email})
+                </option>
+              ))
+            )}
+          </select>
           <button
             type="submit"
             className="w-full bg-green-600 text-white p-2 rounded"
